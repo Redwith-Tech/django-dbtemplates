@@ -44,6 +44,9 @@ setup(
         "Framework :: Django",
     ],
     python_requires=">=3.8",
-    install_requires=["django-appconf >= 0.4"],
+    install_requires=[
+        "django-appconf >= 0.4",
+        "Django >= 3.3",
+    ],
 )
 
