@@ -48,5 +48,9 @@ setup(
         "django-appconf >= 0.4",
         "Django >= 3.3",
     ],
+    extras_require={
+        "bleach": ["django-bleach"],
+        "nh3": ["django-nh3"],
+    },
 )
 

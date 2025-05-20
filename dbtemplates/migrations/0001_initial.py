@@ -1,6 +1,14 @@
 import django
 import django.utils.timezone
 from django.db import migrations, models
+from dbtemplates.utils.bleach import BLEACH_INSTALLED
+from dbtemplates.utils.nh3 import NH3_INSTALLED
+
+
+if NH3_INSTALLED:
+    import django_nh3.models
+elif BLEACH_INSTALLED:
+    import django_bleach.models
 
 
 class Migration(migrations.Migration):
@@ -32,7 +40,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "content",
-                    models.TextField(verbose_name="content", blank=True),
+                    (
+                        django_nh3.models.Nh3TextField(verbose_name="content", blank=True) if NH3_INSTALLED
+                        else (
+                            django_bleach.models.BleachField(verbose_name="content", blank=True) if BLEACH_INSTALLED
+                            else models.TextField(verbose_name="content", blank=True)
+                        )
+                    ),
                 ),  # noqa
                 (
                     "creation_date",

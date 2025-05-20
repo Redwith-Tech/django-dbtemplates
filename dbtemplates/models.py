@@ -3,6 +3,8 @@ from dbtemplates.utils.cache import (
     add_template_to_cache,
     remove_cached_template,
 )
+from dbtemplates.utils.bleach import BLEACH_INSTALLED
+from dbtemplates.utils.nh3 import NH3_INSTALLED
 from dbtemplates.utils.template import get_template_source
 
 from django.contrib.sites.managers import CurrentSiteManager
@@ -14,6 +16,14 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
 
+if NH3_INSTALLED:
+    import django_nh3.models
+elif BLEACH_INSTALLED:
+    import django_bleach.models
+else:
+    ContentField = models.TextField
+
+
 class Template(models.Model):
     """
     Defines a template model for use with the database template loader.
@@ -23,7 +33,13 @@ class Template(models.Model):
                           serialize=False, auto_created=True)
     name = models.CharField(_('name'), max_length=100,
                             help_text=_("Example: 'flatpages/default.html'"))
-    content = models.TextField(_('content'), blank=True)
+    content = (
+        django_nh3.models.Nh3TextField(verbose_name=_('content'), blank=True, **nh3_options) if NH3_INSTALLED
+        else (
+            django_bleach.models.BleachField(verbose_name=_('content'), blank=True, **bleach_options) if BLEACH_INSTALLED
+            else models.TextField(verbose_name=_('content'), blank=True)
+        )
+    )
     sites = models.ManyToManyField(Site, verbose_name=_('sites'),
                                    blank=True)
     creation_date = models.DateTimeField(_('creation date'),
